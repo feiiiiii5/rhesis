@@ -39,7 +39,7 @@ conflicts = [[
 ]]
 
 [options]
-exclude-newer = "2026-06-18T18:21:04.545382Z"
+exclude-newer = "0001-01-01T00:00:00Z" # This has no effect and is included for backwards compatibility when using relative exclude-newer values.
 exclude-newer-span = "P1W"
 
 [options.exclude-newer-package]
@@ -6822,6 +6822,7 @@ dependencies = [
     { name = "nest-asyncio" },
     { name = "numpy" },
     { name = "pandas" },
+    { name = "pdfminer-six" },
     { name = "pillow" },
     { name = "pydantic" },
     { name = "python-dotenv" },
@@ -6892,6 +6893,7 @@ requires-dist = [
     { name = "nest-asyncio" },
     { name = "numpy" },
     { name = "pandas", specifier = ">=2.2.2" },
+    { name = "pdfminer-six", specifier = ">=20231228" },
     { name = "pillow", specifier = ">=12.1.1" },
     { name = "pyautogen", marker = "extra == 'all'", specifier = ">=0.2.0" },
     { name = "pyautogen", marker = "extra == 'all-integrations'", specifier = ">=0.2.0" },
