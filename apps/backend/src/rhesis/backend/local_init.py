@@ -198,7 +198,10 @@ def _ensure_local_admin_org_role(
     db.flush()
 
     try:
-        from rhesis.backend.ee.rbac.models import OrganizationMember
+        import importlib
+
+        rbac_models = importlib.import_module("rhesis.backend.ee.rbac.models")
+        OrganizationMember = rbac_models.OrganizationMember
 
         row = (
             db.query(OrganizationMember)
