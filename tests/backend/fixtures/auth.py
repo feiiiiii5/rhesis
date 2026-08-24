@@ -76,10 +76,15 @@ def create_session_authentication() -> Tuple[str, str, str]:
         )
         return _session_auth_cache
 
+    from tests.backend.fixtures.database import AdminTestingSessionLocal
     from tests.backend.fixtures.test_setup import create_test_organization_and_user
 
-    # Create a temporary database session
-    session = TestingSessionLocal()
+    # Bootstrap runs on the privileged admin connection: it creates the very
+    # organization context that RLS policies key on, so no org GUC exists yet
+    # and the restricted runtime role would see (and be able to insert) nothing.
+    # This mirrors production, where identity seeding is an admin/migration
+    # concern rather than a request-path one.
+    session = AdminTestingSessionLocal()
     try:
         # Generate unique names for this session
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")

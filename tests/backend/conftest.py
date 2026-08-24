@@ -53,8 +53,12 @@ _LICENSE_TEST_TOKEN = jwt.encode(
     headers={"kid": "backend-test-suite-v1"},
 )
 
-_TEST_DB_USER = "rhesis-user"
-_TEST_DB_PASS = "your-secured-password"  # trufflehog:ignore
+# Runtime/tests connect as the non-superuser RLS subject (issue #2525);
+# migrations keep running as the container superuser via ADMIN_DB_*.
+_TEST_DB_USER = _containers["db_user"]
+_TEST_DB_PASS = _containers["db_password"]
+_TEST_ADMIN_DB_USER = _containers["admin_user"]
+_TEST_ADMIN_DB_PASS = _containers["admin_password"]
 _TEST_DB_HOST = _containers["db_host"]
 _TEST_DB_PORT = str(_containers["db_port"])
 _TEST_DB_NAME = "rhesis-test-db"
@@ -72,6 +76,8 @@ _TEST_ENV_VARS = {
     "DB_NAME": _TEST_DB_NAME,
     "APP_DB_USER": _TEST_DB_USER,
     "APP_DB_PASS": _TEST_DB_PASS,
+    "ADMIN_DB_USER": _TEST_ADMIN_DB_USER,
+    "ADMIN_DB_PASS": _TEST_ADMIN_DB_PASS,
     "STORAGE_SERVICE_URI": f"file://{os.path.join(tempfile.gettempdir(), 'rhesis-test-storage')}",
     "BROKER_URL": (
         f"redis://:rhesis-redis-pass@{_containers['redis_host']}:{_containers['redis_port']}/0"
@@ -324,8 +330,8 @@ def _run_migrations() -> None:
     env["DB_HOST"] = _TEST_DB_HOST
     env["DB_PORT"] = _TEST_DB_PORT
     env["DB_NAME"] = _TEST_DB_NAME
-    env["APP_DB_USER"] = _TEST_DB_USER
-    env["APP_DB_PASS"] = _TEST_DB_PASS
+    env["ADMIN_DB_USER"] = _TEST_ADMIN_DB_USER
+    env["ADMIN_DB_PASS"] = _TEST_ADMIN_DB_PASS
     env["DB_ENCRYPTION_KEY"] = _TEST_ENV_VARS["DB_ENCRYPTION_KEY"]
 
     result = subprocess.run(

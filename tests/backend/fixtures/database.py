@@ -16,6 +16,7 @@ import pytest
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 
+from rhesis.backend.app.config.settings import get_database_settings
 from rhesis.backend.app.database import get_database_url
 
 
@@ -96,6 +97,27 @@ TestingSessionLocal = sessionmaker(
     autoflush=False,
     bind=test_engine,
     expire_on_commit=False,  # Same as production
+)
+
+# Privileged (superuser) session factory for identity/bootstrap seeding and
+# other pre-context operations that must bypass RLS. Mirrors production's
+# split between the migration/admin role and the restricted runtime role:
+# tests connect through ``test_engine`` (APP_DB_* = RLS subject, issue #2525)
+# while admin/bootstrap work uses ``admin_engine`` (ADMIN_DB_*).
+ADMIN_DATABASE_URL = get_database_settings().admin_url
+
+admin_engine = create_engine(
+    ADMIN_DATABASE_URL,
+    pool_size=2,
+    max_overflow=2,
+    pool_pre_ping=True,
+)
+
+AdminTestingSessionLocal = sessionmaker(
+    autocommit=False,
+    autoflush=False,
+    bind=admin_engine,
+    expire_on_commit=False,
 )
 
 
